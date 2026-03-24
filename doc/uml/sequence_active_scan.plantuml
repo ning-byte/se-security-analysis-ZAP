@@ -1,0 +1,57 @@
+@startuml
+skinparam backgroundColor white
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor black
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ActorBorderColor black
+    ActorBackgroundColor white
+}
+title ZAP主动扫描核心类调用序列图
+
+actor "安全测试人员" as User
+participant "ActiveScanPanel" as GUI
+participant "ScanController" as SC
+participant "ActiveScan" as AS
+participant "ActiveScanController" as ASC
+participant "PluginFactory" as PF
+participant "AbstractAppParamPlugin" as Plugin
+participant "Alert" as Alert
+
+User -> GUI : 点击“主动扫描”
+activate GUI
+GUI -> SC : startScan(target)
+activate SC
+SC -> AS : 创建任务
+activate AS
+SC -> ASC : 调度线程
+activate ASC
+ASC -> PF : getPlugins(scanPolicy)
+activate PF
+PF --> ASC : 返回插件列表
+deactivate PF
+
+loop 每个插件
+    ASC -> Plugin : scan(...)
+    activate Plugin
+    alt 发现漏洞
+        Plugin -> Alert : bingo(...)
+        activate Alert
+        Alert --> Plugin : 创建告警
+        deactivate Alert
+    end
+    Plugin --> ASC : 完成
+    deactivate Plugin
+end
+
+ASC --> SC : 扫描结束
+deactivate ASC
+AS --> SC : 任务结束
+deactivate AS
+SC --> GUI : 更新结果
+deactivate SC
+deactivate GUI
+@enduml
