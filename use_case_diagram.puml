@@ -1,0 +1,50 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam packageStyle rectangle
+skinparam defaultFontSize 12
+
+title OWASP ZAP 用例图
+
+left to right direction
+
+actor "安全测试人员" as Tester
+actor "目标Web服务器" as Target
+
+rectangle "OWASP ZAP" {
+  
+  usecase "主动扫描" as UC_ActiveScan
+  usecase "被动扫描" as UC_PassiveScan
+  usecase "站点爬虫" as UC_Spider
+  usecase "配置扫描策略" as UC_ScanPolicy
+  usecase "设置作用域" as UC_Scope
+  usecase "拦截请求/响应" as UC_Intercept
+  usecase "断点调试" as UC_Breakpoint
+  usecase "生成报告" as UC_Report
+  usecase "选择报告模板" as UC_Template
+  usecase "插件管理" as UC_Plugin
+  usecase "安装/更新插件" as UC_InstallPlugin
+  
+  UC_ActiveScan --|> UC_ScanPolicy : <<include>>
+  UC_ActiveScan --|> UC_Scope : <<include>>
+  UC_Spider --|> UC_Scope : <<include>>
+  UC_PassiveScan --|> UC_Scope : <<include>>
+  UC_Report --|> UC_Template : <<include>>
+  
+  UC_Intercept --|> UC_Breakpoint : <<extend>>
+  UC_Plugin --|> UC_InstallPlugin : <<extend>>
+}
+
+Tester --> UC_ActiveScan
+Tester --> UC_PassiveScan
+Tester --> UC_Spider
+Tester --> UC_Intercept
+Tester --> UC_Report
+Tester --> UC_Plugin
+
+Target <-- UC_ActiveScan
+Target <-- UC_PassiveScan
+Target <-- UC_Spider
+Target <-- UC_Intercept
+
+@enduml
